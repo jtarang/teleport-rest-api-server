@@ -36,7 +36,8 @@ teleport-rest-api-server/
 ## ▶️ Running the Server
 
 ```bash
-go run main.go
+git clone https://github.com/jtarang/teleport-rest-api-server.git
+go run .
 ```
 
 Server runs at:
