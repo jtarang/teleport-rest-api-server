@@ -2,8 +2,13 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
+	"net"
 	"net/http"
+	"net/url"
+	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gravitational/teleport/api/client/proto"
@@ -11,15 +16,30 @@ import (
 
 func main() {
 
-	ctx := context.Background()
+	proxyAddress := flag.String("proxy", "", "-proxy some-domain.teleport.sh")
+	proxyPorts := flag.String("proxy-ports", "443,3025,3024,3080", "comma-separated list of ports")
+	flag.Parse()
 
-	// Your Teleport Proxy's public address
-	proxyAddresses := []string{
-		"example.teleport.sh:443",
-		"example.teleport.sh:3025",
-		"example.teleport.sh:3024",
-		"example.teleport.sh:3080",
+	portsStr := strings.Split(*proxyPorts, ",")
+	proxyAddresses := make([]string, 0, len(portsStr))
+
+	if *proxyAddress != "" {
+		_, err := url.Parse(*proxyAddress)
+		if err != nil {
+			log.Fatalf("Invalid proxy address %q: %v", *proxyAddress, err)
+		}
 	}
+
+	for _, port := range portsStr {
+		port = strings.TrimSpace(port)
+		portInt, err := strconv.Atoi(port)
+		if err != nil || portInt < 1 || portInt > 65535 {
+			log.Fatalf("Invalid port %q: must be 1–65535", port)
+		}
+		proxyAddresses = append(proxyAddresses, net.JoinHostPort(*proxyAddress, strconv.Itoa(portInt)))
+	}
+
+	ctx := context.Background()
 
 	// Create the TeleportClientManager and establish connection
 	tcm, err := NewTeleportClientManager(ctx, TeleportConfig{ProxyAddresses: proxyAddresses})
@@ -74,6 +94,7 @@ func main() {
 	r.POST("/access-requests", func(c *gin.Context) {
 		var accessRequest AccessRequestConfig
 
+		// If there's an error, return a 400 Bad Request
 		if err := c.ShouldBindJSON(&accessRequest); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
