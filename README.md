@@ -37,7 +37,7 @@ teleport-rest-api-server/
 
 ```bash
 git clone https://github.com/jtarang/teleport-rest-api-server.git
-go run .
+go run . --proxy your-proxy-address.teleport.sh
 ```
 
 Server runs at:
