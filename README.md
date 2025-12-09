@@ -3,7 +3,7 @@
 
 A lightweight REST API server that exposes Teleport management operations—such as fetching the current user, listing roles, and creating access requests—using Teleport’s Go SDK and the Gin web framework.
 
-This service provides a simple REST interface on top of Teleport, making it easy for external tools, scripts, and integrations to interact with Teleport without using tsh or the Teleport API directly.
+This service provides a simple REST interface on top of Teleport, making it easy for external tools, scripts, and integrations to interact with Teleport without using tsh or the Teleport gRPC API directly.
 
 ---
 
@@ -13,7 +13,6 @@ This repository includes a **Hoppscotch API collection** you can import directly
 
 The example requests in this README match the Hoppscotch file exactly.
 
-File name suggestion:
 
 ```
 teleport-rest-api-hoppscotch.json
@@ -48,9 +47,7 @@ http://localhost:8080
 
 ---
 
-# 📡 API Endpoints (Matches Hoppscotch Collection)
-
-Below are the same requests included in the Hoppscotch export you provided.
+# 📡 API Endpoints
 
 ---
 
@@ -105,7 +102,7 @@ GET http://localhost:8080/roles
 POST http://localhost:8080/roles
 ```
 
-**Request Body (matches Hoppscotch)**
+**Request Body**
 
 ```json
 {
@@ -142,7 +139,7 @@ POST http://localhost:8080/roles
 POST http://localhost:8080/access-requests
 ```
 
-**Request Body (matches Hoppscotch)**
+**Request Body**
 
 ```json
 {
