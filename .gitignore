@@ -1,0 +1,45 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Output of `go build`
+/bin/
+/build/
+/dist/
+/out/
+/cmd/**/bin/
+
+# Go coverage
+*.out
+coverage.txt
+
+# Dependency directories
+vendor/
+
+# Logs
+*.log
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+
+# Go workspace files
+go.work
+go.work.sum
+
+# Env
+.env
+.env.*

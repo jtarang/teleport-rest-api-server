@@ -1,0 +1,98 @@
+{
+  "v": 11,
+  "name": "Teleport REST",
+  "folders": [],
+  "requests": [
+    {
+      "v": "17",
+      "name": "Get Current User",
+      "method": "GET",
+      "endpoint": "http://localhost:8080/user",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {},
+      "description": null
+    },
+    {
+      "v": "17",
+      "name": "Get Roles",
+      "method": "GET",
+      "endpoint": "http://localhost:8080/roles",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {},
+      "description": null
+    },
+    {
+      "v": "17",
+      "name": "Create Role",
+      "method": "POST",
+      "endpoint": "http://localhost:8080/roles",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"Name\": \"db-access-role\",\n  \"MaxSessionTTL\": 1800,\n  \"RoleConditions\": {\n    \"db_labels\": {\n      \"*\": \"*\"\n    },\n    \"db_names\": [\n      \"databaseA\",\n      \"databaseB\"\n    ]\n  }\n}"
+      },
+      "requestVariables": [],
+      "responses": {},
+      "description": null
+    },
+    {
+      "v": "17",
+      "name": "Create Access Request",
+      "method": "POST",
+      "endpoint": "http://localhost:8080/access-requests",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"Name\": \"some-user-db-access\",\n  \"Reason\": \"Need access to databases for databaseA and databaseB\",\n  \"Roles\": [\n    \"db-access-role\"\n  ],\n  \"Username\": \"username@somewhere.com\",\n  \"Resources\": [\n    {\n      \"kind\": \"database\",\n      \"name\": \"databaseA\"\n    },\n    {\n      \"kind\": \"database\",\n      \"name\": \"databaseB\"\n    }\n  ]\n}"
+      },
+      "requestVariables": [],
+      "responses": {},
+      "description": null
+    }
+  ],
+  "auth": {
+    "authType": "none",
+    "authActive": true
+  },
+  "headers": [],
+  "variables": [],
+  "description": ""
+}
