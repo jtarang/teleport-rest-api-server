@@ -88,7 +88,8 @@ GET http://localhost:8080/roles
 [
   {
     "name": "db-access-role",
-    "version": "v6"
+    "version": "v8"
+    ...
   }
 ]
 ```
