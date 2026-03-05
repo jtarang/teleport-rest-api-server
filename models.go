@@ -26,3 +26,9 @@ type RoleConfig struct {
 	RoleConditions types.RoleConditions
 	MaxSessionTTL  time.Duration
 }
+
+// AccessRequestEvent holds a parsed event from the watcher stream.
+type AccessRequestEvent struct {
+	Type    types.OpType
+	Request types.AccessRequest
+}
