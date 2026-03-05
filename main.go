@@ -4,24 +4,26 @@ import (
 	"context"
 	"flag"
 	"log"
-	"net"
+	"log/slog"
 	"net/http"
 	"net/url"
-	"strconv"
-	"strings"
+	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gravitational/teleport/api/client/proto"
+
+	"github.com/gravitational/teleport/api/types"
+	"github.com/gravitational/teleport/integrations/lib/embeddedtbot"
+	bot2 "github.com/gravitational/teleport/lib/tbot/bot"
+	"github.com/gravitational/teleport/lib/tbot/bot/onboarding"
 )
 
 func main() {
 
 	proxyAddress := flag.String("proxy", "", "-proxy some-domain.teleport.sh")
-	proxyPorts := flag.String("proxy-ports", "443,3025,3024,3080", "comma-separated list of ports")
+	tbotJoinToken := flag.String("join-token", "", "-join-token some-token-value")
 	flag.Parse()
-
-	portsStr := strings.Split(*proxyPorts, ",")
-	proxyAddresses := make([]string, 0, len(portsStr))
 
 	if *proxyAddress != "" {
 		_, err := url.Parse(*proxyAddress)
@@ -30,19 +32,31 @@ func main() {
 		}
 	}
 
-	for _, port := range portsStr {
-		port = strings.TrimSpace(port)
-		portInt, err := strconv.Atoi(port)
-		if err != nil || portInt < 1 || portInt > 65535 {
-			log.Fatalf("Invalid port %q: must be 1–65535", port)
-		}
-		proxyAddresses = append(proxyAddresses, net.JoinHostPort(*proxyAddress, strconv.Itoa(portInt)))
-	}
-
 	ctx := context.Background()
 
+	cfg := &embeddedtbot.BotConfig{
+		AuthServer: *proxyAddress,
+		Onboarding: onboarding.Config{
+			TokenValue: *tbotJoinToken,
+			JoinMethod: types.JoinMethodToken,
+		},
+		CredentialLifetime: bot2.CredentialLifetime{
+			TTL:                  time.Hour,
+			RenewalInterval:      20 * time.Minute,
+			SkipMaxTTLValidation: false,
+		},
+	}
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
+	bot, err := embeddedtbot.New(cfg, logger)
+	if err != nil {
+		log.Fatalf("failed to create bot: %v", err)
+	}
+
 	// Create the TeleportClientManager and establish connection
-	tcm, err := NewTeleportClientManager(ctx, TeleportConfig{ProxyAddresses: proxyAddresses})
+	tcm, err := NewTeleportClientManager(ctx, bot, *proxyAddress)
 
 	if err != nil {
 		log.Fatalf("❌ Failed to initialize Teleport Client Manager: %v", err)
@@ -62,7 +76,6 @@ func main() {
 
 	r.GET("/roles", func(c *gin.Context) {
 		roles, err := tcm.Client.ListRoles(ctx, &proto.ListRolesRequest{})
-
 		if err != nil {
 			// If there's an error, return a 400 Bad Request
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
